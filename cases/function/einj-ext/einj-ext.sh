@@ -19,7 +19,6 @@ setup_path
 
 
 APEI_IF=""
-GHES_REC="Hardware error from APEI Generic Hardware Error Source"
 LOG_DIR=$ROOT/cases/function/einj-ext/log
 LOG=$LOG_DIR/$(date +%Y-%m-%d.%H.%M.%S)-`uname -r`.log
 
@@ -65,6 +64,7 @@ check_result()
 	local timeout=25
 	local sleep=5
 	local time=0
+	local addr=$1
 
 	echo -e "Current OS/kernel version as follows:\n" >> $LOG
 	uname -a >> $LOG
@@ -73,7 +73,7 @@ check_result()
 	while [ $time -lt $timeout ]
 	do
 		dmesg -c >> $LOG 2>&1
-		grep -q "$GHES_REC" $LOG
+		grep -q "SystemAddress:${addr}" $LOG
 		[ $? -eq 0 ] && return 0
 		sleep $sleep
 		time=`expr $time + $sleep`
@@ -131,7 +131,7 @@ einj_inj()
 	echo go > trigger
 	sleep 3
 
-	check_result
+	check_result $ADDR
 	if [ $? -eq 0 ]
 	then
 		echo -e "\nEINJ Injection: GHES record is OK" |tee -a $LOG

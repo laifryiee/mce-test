@@ -9,7 +9,6 @@ setup_path
 . $ROOT/lib/mce.sh
 
 APEI_IF=""
-GHES_REC="Hardware error from APEI Generic Hardware Error Source"
 LOG_DIR=$ROOT/cases/function/apei-inj/log
 LOG=$LOG_DIR/$(date +%Y-%m-%d.%H.%M.%S)-`uname -r`.log
 
@@ -33,6 +32,7 @@ check_result()
 	local timeout=25
 	local sleep=5
 	local time=0
+	local addr=$1
 
 	echo -e "<<< OS/kernel version is as follows >>>\n" >> $LOG
 	uname -a >> $LOG
@@ -41,10 +41,10 @@ check_result()
 	while [ $time -lt $timeout ]
 	do
 		dmesg -c >> $LOG 2>&1
-		grep -q "$GHES_REC" $LOG
+		grep -q "SystemAddress:${addr}" $LOG
 		if [ $? -eq 0 ]
 		then
-			echo -e "\nGHES record is OK\n" |tee -a $LOG
+			echo -e "\nMachine Check event record is OK\n" |tee -a $LOG
 			echo 0 >> $TMP_DIR/error.$$
 			return
 		fi
@@ -119,7 +119,7 @@ main()
 	echo go > trigger
 	sleep 3
 
-	check_result
+	check_result $ADDR
 	killall victim &> /dev/null
 	rm -f trigger
 	grep -q "1" $TMP_DIR/error.$$
