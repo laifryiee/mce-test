@@ -338,3 +338,16 @@ set_panic_on_oops()
 	[ $# -eq 1 ] || die "missing parameter for set_panic_on_oops"
 	echo -n $1 > /proc/sys/kernel/panic_on_oops
 }
+
+get_edac_type()
+{
+	local EDAC_TYPE=""
+	if cat /proc/modules | grep -q i7core_edac; then
+		EDAC_TYPE="i7core_edac"
+	elif cat /proc/modules | grep -q sb_edac; then
+		EDAC_TYPE="sb_edac"
+	elif cat /proc/modules | grep -q skx_edac; then
+		EDAC_TYPE="skx_edac"
+	fi
+	echo $EDAC_TYPE
+}
