@@ -51,7 +51,7 @@ check_result()
 		sleep $sleep
 		time=`expr $time + $sleep`
 	done
-	echo -e "\nGHES record is not expected\n" |tee -a $LOG
+	echo -e "\nMachine Check event is not found\n" |tee -a $LOG
 	echo 1 > $TMP_DIR/error.$$
 	return 1
 }

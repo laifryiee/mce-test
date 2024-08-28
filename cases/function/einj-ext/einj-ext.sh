@@ -134,10 +134,10 @@ einj_inj()
 	check_result $ADDR
 	if [ $? -eq 0 ]
 	then
-		echo -e "\nEINJ Injection: GHES record is OK" |tee -a $LOG
+		echo -e "\nEINJ Injection: Machine Check event is not found is OK" |tee -a $LOG
 		echo 0 >> $TMP_DIR/error.$$
 	else
-		echo -e "\nEINJ Injection: GHES record is not expected" |tee -a $LOG
+		echo -e "\nEINJ Injection: Machine Check event is not found is not expected" |tee -a $LOG
 		echo 1 > $TMP_DIR/error.$$
 	fi
 	killall victim &> /dev/null
