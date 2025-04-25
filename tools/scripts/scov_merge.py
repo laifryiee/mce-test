@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Merge mce serverity coverage file from several test cases. This can
 # be used to check the coverage of several test cases.
@@ -11,7 +11,7 @@
 import sys
 
 def die(str):
-    print str
+    print(str)
     sys.exit(-1)
 
 def die_on(cond, str):
@@ -47,11 +47,11 @@ def merge(gcls1, gcls2):
         gcl1.merge(gcl2)
 
 def scov_merge(fns, of):
-    f = file(fns[0])
+    f = open(fns[0])
     gcls_base = parse(f)
 
     for fn in fns[1:]:
-        f = file(fn)
+        f = open(fn)
         gcls = parse(f)
         merge(gcls_base, gcls)
 
@@ -59,10 +59,10 @@ def scov_merge(fns, of):
         gcl.write(of)
 
 def usage():
-    print 'Usage: %s <severities coverage files>' % (sys.argv[0])
+    print('Usage: %s <severities coverage files>' % (sys.argv[0]))
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         usage()
-        exit -1
+        sys.exit(-1)
     scov_merge(sys.argv[1:], sys.stdout)
