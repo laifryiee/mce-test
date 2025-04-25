@@ -49,7 +49,7 @@ extern char zoo_error[ZELEN];
 int lock_file( FILE *fp, short ltype, char **errmsg );
 /* FILE *open_file( char *file, char *mode, char **errmsg ); */
 
-void wait_handler();
+void wait_handler(int sig);
 
 /*  char *zoo_active( void ); */
 /* zoo_getname(): create a filename to use for the zoo
