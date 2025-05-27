@@ -21,7 +21,7 @@ This test is hard mode of HWPoison functional test.
 EOF
 
 echo "------------------------------------------------------------------------"
-echo "Running tsimpleinj (simple hard offline test)"
+echo "Running tkillpoison (simple hard offline test)"
 run_test ./tkillpoison failure
 
 echo "------------------------------------------------------------------------"
