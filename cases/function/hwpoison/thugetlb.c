@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	int forkflag = 0;
 	int privateflag = 0;
 	int cowflag = 0;
-	char c;
+	int c;
 	pid_t pid = 0;
 	void *expected_addr = NULL;
 	struct sembuf sembuffer;
