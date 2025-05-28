@@ -57,18 +57,27 @@ fi
 [ ! -w $DEBUG/hwpoison/unpoison-pfn ] && fail "no unpoison support in kernel"
 
 end_of_memory() {
-	for i in /sys/firmware/memmap/* ; do
-		case "$(< $i/type)" in
-		"System RAM") ;;
-		*) continue ;;
-		esac
+        if [ -d /sys/firmware/memmap/ ] ; then
+                for i in /sys/firmware/memmap/* ; do
+                        case "$(< $i/type)" in
+                        "System RAM") ;;
+                        *) continue ;;
+                        esac
 
-		k=$(< $i/end)
-		k=${k/0x/}
-		k=$(echo $k | tr a-z A-Z)
+                        k=$(< $i/end)
+                        k=${k/0x/}
+                        k=$(echo $k | tr a-z A-Z)
 
-		echo "ibase=16; $k/1000" | bc
-	done | sort -n | tail -n1
+                        echo "ibase=16; $k/1000" | bc
+                done | sort -n | tail -n1
+        else
+                # fallback to /proc/iomem for platform that do not have /sys/firmware/memmap/
+                k=$(grep "System RAM" /proc/iomem | tail -n1 | awk -F '[- ]' '{print $2}')
+
+                k=${k/0x/}
+                k=$(echo $k | tr a-z A-Z)
+                echo "ibase=16; $k/1000" | bc
+        fi
 }
 
 E=$(end_of_memory)
