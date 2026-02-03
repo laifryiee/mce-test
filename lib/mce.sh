@@ -338,3 +338,17 @@ set_panic_on_oops()
 	[ $# -eq 1 ] || die "missing parameter for set_panic_on_oops"
 	echo -n $1 > /proc/sys/kernel/panic_on_oops
 }
+
+remove_edac_modules()
+{
+	# Remove EDAC hardware driver modules to prevent them from consuming
+	# MCE events before mcelog can process them. This function dynamically
+	# detects and removes modules ending in '_edac' (e.g., imh_edac, sb_edac,
+	# skx_edac), while preserving infrastructure modules like edac_core and
+	# skx_edac_common.
+	local edac_modules
+	edac_modules=$(awk '$1 ~ /_edac$/ {print $1}' /proc/modules)
+	for module in $edac_modules; do
+		rmmod "$module" >/dev/null 2>&1
+	done
+}

@@ -57,15 +57,7 @@ main()
 
 	# remove possible EDAC module, otherwise, the error information will be ate
 	# by EDAC module and mcelog will not get it.
-	# By now, only i7core_edac and sb_edac hook into the mcelog kernel buffer
-	if cat /proc/modules | grep -q i7core_edac; then
-		EDAC_TYPE="i7core_edac"
-	elif cat /proc/modules | grep -q sb_edac; then
-		EDAC_TYPE="sb_edac"
-	elif cat /proc/modules | grep -q skx_edac; then
-		EDAC_TYPE="skx_edac"
-	fi
-	rmmod $EDAC_TYPE >/dev/null 2>&1
+	remove_edac_modules
 
 	#mcelog must be run in daemon mode.
 	cat /dev/null > /var/log/mcelog
