@@ -220,14 +220,19 @@ main()
 
 	[ $# -eq 0 ] && usage
 
-	for cmd in mcelog mce-inject; do
-		which $cmd &> /dev/null
-		[ $? -ne 0 ] &&
-		{
-			echo "Sorry, Please install $cmd first. Exiting..."
-			exit 1
-		}
-	done
+	if ! which mce-inject &> /dev/null; then
+		echo "Sorry, Please install mce-inject first. Exiting..."
+		exit 1
+	fi
+
+	if which mcelog &> /dev/null; then
+		export MCE_LOGGER="mcelog"
+	elif which rasdaemon &> /dev/null; then
+		export MCE_LOGGER="rasdaemon"
+	else
+		echo "Sorry, Please install mcelog or rasdaemon first. Exiting..."
+		exit 1
+	fi
 
 	while getopts t:s:o:b:l:r:h arg; do
 		case $arg in

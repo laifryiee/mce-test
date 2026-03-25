@@ -105,14 +105,54 @@ reset_mce_logger()
 	fi
 }
 
+rasdaemon_to_mcelog()
+{
+	local db_file="/var/lib/rasdaemon/ras-mc_event.db"
+	if [ ! -f "$db_file" ]; then
+		return 1
+	fi
+
+	sqlite3 -separator ' ' "$db_file" "
+		SELECT 
+			'CPU', cpu, 'BANK', bank,
+			'TSC', tsc, 
+			'RIP', ip,
+			'MISC', printf('%x', misc), 
+			'ADDR', printf('%x', addr), 
+			'STATUS', printf('%llx', status), 
+			'MCGSTATUS', printf('%llx', mcgstatus),
+			'PROCESSOR', socketid, ':', apicid,
+			'TIME', walltime
+		FROM mce_record ORDER BY id ASC;
+	" | awk '{
+			print "CPU " $2 " BANK " $4 
+			print "TSC " $6 
+			print "RIP " $8
+			print "MISC " $10 " ADDR " $12 
+			print "STATUS " $14 " MCGSTATUS " $16
+			print "PROCESSOR " $18 " " $19 " TIME " $21
+			print ""
+		}'
+}
+
 get_mcelog_from_dev()
 {
 	[ $# -eq 1 ] || die "missing parameter for get_mcelog_from_dev"
 	local mcelog_result="$1"
-	if mcelog --dump-raw-ascii > "$mcelog_result"; then
-		true
+	check_mce_logger
+
+	if [ "$MCE_LOGGER" = "rasdaemon" ]; then
+		if rasdaemon_to_mcelog > "$mcelog_result"; then
+			true
+		else
+			echo "  Failed: can not extract mce log from rasdaemon DB"
+		fi
 	else
-		echo "  Failed: can not get mce log from /dev/mcelog"
+		if mcelog --dump-raw-ascii > "$mcelog_result"; then
+			true
+		else
+			echo "  Failed: can not get mce log from /dev/mcelog"
+		fi
 	fi
 }
 
