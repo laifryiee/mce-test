@@ -62,6 +62,49 @@ mce_cmp()
 	diff $tmpf1 $tmpf2 > /dev/null
 }
 
+check_mce_logger()
+{
+	[ -n "$MCE_LOGGER" ] && return
+	if which mcelog &> /dev/null; then
+		export MCE_LOGGER="mcelog"
+	elif which rasdaemon &> /dev/null; then
+		export MCE_LOGGER="rasdaemon"
+	else
+		die "No MCE logger found"
+	fi
+}
+
+start_mce_logger()
+{
+	check_mce_logger
+	stop_mce_logger
+	if [ "$MCE_LOGGER" = "rasdaemon" ]; then
+		rasdaemon --record > /dev/null 2>&1
+	else
+		mcelog --daemon
+	fi
+}
+
+stop_mce_logger()
+{
+	killall mcelog > /dev/null 2>&1
+	killall rasdaemon > /dev/null 2>&1
+}
+
+reset_mce_logger()
+{
+	check_mce_logger
+	if [ "$MCE_LOGGER" = "rasdaemon" ]; then
+		# rasdaemon uses sqlite3, sometimes just deleting db is easiest for test reset
+		if [ -f /var/lib/rasdaemon/ras-mc_event.db ]; then
+			rm -f /var/lib/rasdaemon/ras-mc_event.db
+			ras-mc-ctl --db-clean > /dev/null 2>&1
+		fi
+	else
+		cat /dev/null > /var/log/mcelog
+	fi
+}
+
 get_mcelog_from_dev()
 {
 	[ $# -eq 1 ] || die "missing parameter for get_mcelog_from_dev"
