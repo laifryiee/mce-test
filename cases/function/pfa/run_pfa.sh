@@ -60,10 +60,10 @@ main()
 	remove_edac_modules
 
 	#mcelog must be run in daemon mode.
-	cat /dev/null > /var/log/mcelog
-	kill -9 `pidof mcelog` >/dev/null 2>&1
+	stop_mce_logger
+	reset_mce_logger
 	sleep 1
-	mcelog --ignorenodev --daemon
+	start_mce_logger
 
 	killall victim &> /dev/null
 	victim -p | tee log &

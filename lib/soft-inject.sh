@@ -17,6 +17,16 @@ soft_inject_verify_mcelog()
 {
     # check mcelog
     if [ -f $RDIR/$this_case/mcelog ]; then
+	check_mce_logger
+	if [ "$MCE_LOGGER" = "rasdaemon" ]; then
+	    if [ -s "$RDIR/$this_case/mcelog" ]; then
+		echo "  Passed: rasdaemon captured errors"
+	    else
+		echo "  Failed: rasdaemon log is empty"
+	    fi
+	    return 0
+	fi
+
 	if [ -f $SDIR/refer/$bcase ]; then
 	    mcelog_refer=$SDIR/refer/$bcase
 	else
@@ -91,7 +101,12 @@ soft_inject_enumerate()
 
 soft_inject_trigger()
 {
-    mcelog &> /dev/null
+    check_mce_logger
+    if [ "$MCE_LOGGER" = "rasdaemon" ]; then
+        rasdaemon --record > /dev/null 2>&1
+    else
+        mcelog &> /dev/null
+    fi
     case "$driver" in
 	kdump*)
 	    mce-inject --no-random $SDIR/data/$bcase
